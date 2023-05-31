@@ -1,32 +1,35 @@
 import fiftyone as fo
 import fiftyone.zoo as foz
-from tensorflow.keras.applications import VGG19
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
-from tensorflow.keras.optimizers import Adam
+from keras.applications import VGG19
+from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Dense, GlobalAveragePooling2D
+from keras.optimizers import Adam
+from keras.models import Model
 
 # Define your classes
 classes = ['Cat', 'Dog', 'Person']
 
+print("load")
 # Load Open Images Dataset
 dataset = foz.load_zoo_dataset(
     "open-images-v7",
     split="train",
     classes=classes,
-    max_samples=5000,  # adjust as needed
+    max_samples=1000,  # adjust as needed
     seed=51,
     shuffle=True
 )
 
+print("export")
 # Export the data to a directory in a format suitable for Keras ImageDataGenerator
-export_dir = '/path/to/export/directory'
+export_dir = '/datasets'
 dataset.export(
     export_dir=export_dir,
     dataset_type=fo.types.ImageDirectory,
     overwrite=True  # overwrite existing directory
 )
 
+print("datagen")
 # Define image data generator for data augmentation
 datagen = ImageDataGenerator(
     rescale=1./255,
@@ -36,6 +39,7 @@ datagen = ImageDataGenerator(
     validation_split=0.2  # use 20% of the data for validation
 )
 
+print("train")
 # Define training and validation generators
 train_generator = datagen.flow_from_directory(
     export_dir,
@@ -45,6 +49,7 @@ train_generator = datagen.flow_from_directory(
     subset='training'
 )
 
+print("val")
 validation_generator = datagen.flow_from_directory(
     export_dir,
     target_size=(224, 224),
@@ -53,6 +58,7 @@ validation_generator = datagen.flow_from_directory(
     subset='validation'
 )
 
+print("vgg19")
 # Load the VGG19 model with imagenet weights
 base_model = VGG19(weights='imagenet', include_top=False)
 
@@ -69,6 +75,7 @@ model = Model(inputs=base_model.input, outputs=predictions)
 for layer in base_model.layers:
     layer.trainable = False
 
+print("compile")
 # Compile the model
 model.compile(optimizer=Adam(lr=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
