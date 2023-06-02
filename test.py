@@ -1,10 +1,11 @@
-import fiftyone as fo
-import fiftyone.zoo as foz
 from keras.applications import VGG19
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras.optimizers import Adam
 from keras.models import Model
+import fiftyone as fo
+import fiftyone.zoo as foz
+
 
 # Define your classes
 classes = ['Cat', 'Dog', 'Person']
@@ -15,14 +16,14 @@ dataset = foz.load_zoo_dataset(
     "open-images-v7",
     split="train",
     classes=classes,
-    max_samples=1000,  # adjust as needed
-    seed=51,
-    shuffle=True
+    label_types=["detections", "classifications"],
+    max_samples=10,  # adjust as needed
+    dataset_name="cats-dogs-people"
 )
 
 print("export")
 # Export the data to a directory in a format suitable for Keras ImageDataGenerator
-export_dir = '/datasets'
+export_dir = '../../../Users/a760660/fiftyone/open-images-v7/train/'
 dataset.export(
     export_dir=export_dir,
     dataset_type=fo.types.ImageDirectory,
