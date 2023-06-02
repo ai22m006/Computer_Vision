@@ -9,18 +9,16 @@ from openimages import download
 
 # Define classes and their respective amount of images to be downloaded
 classes = ['Cat', 'Dog', 'Person']
-n_images = 1000  # number of images per class
-
+n_images = 2000  # number of images per class
+# Path to the directory where the images are stored
+base_dir = './dataset'
 # Download images for each class using Open Images
 
 download.download_dataset(
     class_labels=classes,
-    dest_dir='./dataset',
+    dest_dir=base_dir,
     limit=n_images
 )
-
-# Path to the directory where the images are stored
-base_dir = './dataset'
 
 # Define parameters for the loader
 batch_size = 20
@@ -28,7 +26,7 @@ img_height = 224
 img_width = 224
 
 # Load the training data
-train_datagen = ImageDataGenerator(rescale=1./255,
+train_datagen = ImageDataGenerator(rescale=1. / 255,
                                    shear_range=0.2,
                                    zoom_range=0.2,
                                    horizontal_flip=True,
@@ -39,7 +37,7 @@ train_generator = train_datagen.flow_from_directory(
     target_size=(img_height, img_width),
     batch_size=batch_size,
     class_mode='categorical',
-    subset='training') # set as training data
+    subset='training')  # set as training data
 
 # Load the validation data
 validation_generator = train_datagen.flow_from_directory(
@@ -47,7 +45,7 @@ validation_generator = train_datagen.flow_from_directory(
     target_size=(img_height, img_width),
     batch_size=batch_size,
     class_mode='categorical',
-    subset='validation') # set as validation data
+    subset='validation')  # set as validation data
 
 # Load the VGG19 model
 base_model = VGG19(weights='imagenet', include_top=False, input_shape=(img_height, img_width, 3))
@@ -68,10 +66,10 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 # Train the model
 model.fit(
     train_generator,
-    steps_per_epoch = train_generator.samples // batch_size,
-    validation_data = validation_generator,
-    validation_steps = validation_generator.samples // batch_size,
-    epochs = 5)
+    steps_per_epoch=train_generator.samples // batch_size,
+    validation_data=validation_generator,
+    validation_steps=validation_generator.samples // batch_size,
+    epochs=5)
 
 # Save the model
-model.save('model.h5')
+model.save('models/model.h5')
