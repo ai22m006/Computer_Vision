@@ -9,18 +9,18 @@ from openimages import download
 
 # Define classes and their respective amount of images to be downloaded
 classes = ['Cat', 'Dog', 'Person']
-n_images = 100  # number of images per class
+n_images = 1000  # number of images per class
 
 # Download images for each class using Open Images
-for class_name in classes:
-    download.download_dataset(
-        class_name.lower(),
-        limit=n_images,
-        annotation_format='none'
-    )
+
+download.download_dataset(
+    class_labels=classes,
+    dest_dir='./dataset',
+    limit=n_images
+)
 
 # Path to the directory where the images are stored
-base_dir = './'
+base_dir = './dataset'
 
 # Define parameters for the loader
 batch_size = 20
@@ -32,7 +32,7 @@ train_datagen = ImageDataGenerator(rescale=1./255,
                                    shear_range=0.2,
                                    zoom_range=0.2,
                                    horizontal_flip=True,
-                                   validation_split=0.2)  # set validation split
+                                   validation_split=0.3)  # set validation split
 
 train_generator = train_datagen.flow_from_directory(
     base_dir,
@@ -72,3 +72,6 @@ model.fit(
     validation_data = validation_generator,
     validation_steps = validation_generator.samples // batch_size,
     epochs = 5)
+
+# Save the model
+model.save('model.h5')
